@@ -2,8 +2,7 @@
 
 import { useSimilarMovies } from "@/hooks/useMovie";
 import { Loader2 } from "lucide-react";
-import  MovieCard  from '@/components/Movies/MovieCard';
-
+import MovieCard from './../MovieCard';
 export default function SimilarMovies({ id }) {
    const { movies, isLoading, error } = useSimilarMovies(id);
 
