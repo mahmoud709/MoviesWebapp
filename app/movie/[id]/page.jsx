@@ -6,6 +6,7 @@ import { ImageBaseUrl } from "../../../lib/tmdb";
 import { Loader2 } from "lucide-react";
 import GetVideos from "../../../Components/Movies/Videos/GetVideos";
 import SimilarMovies from "../../../Components/Movies/SimilarMovies/SimilarMovies";
+import MovieCredits from "../../../Components/Movies/MovieCredits/MovieCredits";
 
 function formatMoney(n) {
    if (!n) return "N/A";
@@ -41,7 +42,7 @@ export default function Page() {
          <div className="relative h-80 md:h-105 overflow-hidden">
             <Image
                src={`${ImageBaseUrl}${movie.backdrop_path}`}
-               alt={movie.backdrop_path}
+               alt={movie?.title}
                className="w-full h-full object-cover brightness-[0.50]"
                width={300}
                height={300}
@@ -148,8 +149,11 @@ export default function Page() {
                </div>
             </div>
          </div>
-         <GetVideos id={id} />
-         <SimilarMovies id={id} />
+         <div className="px-2">
+            <GetVideos id={id} />
+            <SimilarMovies id={id} />
+            <MovieCredits id={id} />
+         </div>
       </div>
    );
 }

@@ -10,13 +10,14 @@ export default function MovieCard({ movie }) {
          <Link href={`/movie/${movie.id}`}>
             {/* Poster */}
             <div className="relative rounded-xl overflow-hidden mb-3 shadow-lg group-hover:scale-[1.02] transition">
-               <Image
+               {movie.poster_path && 
+                  <Image
                   src={`${ImageBaseUrl}${movie.poster_path}`}
                   alt={movie.title}
                   width={300}
                   height={450}
                   className="w-full h-full object-cover"
-               />
+                  />}
 
                {/* Rating */}
                <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded text-white text-xs flex items-center gap-1">
