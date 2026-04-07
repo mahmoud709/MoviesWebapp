@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ImageBaseUrl } from "../../../lib/tmdb";
 import { Loader2 } from "lucide-react";
 import GetVideos from "../../../Components/Movies/Videos/GetVideos";
+import SimilarMovies from "../../../Components/Movies/SimilarMovies/SimilarMovies";
 
 function formatMoney(n) {
    if (!n) return "N/A";
@@ -148,6 +149,7 @@ export default function Page() {
             </div>
          </div>
          <GetVideos id={id} />
+         <SimilarMovies id={id} />
       </div>
    );
 }
