@@ -4,6 +4,7 @@ import { useMovieDetails } from './../../../hooks/useMovie';
 import Image from "next/image";
 import { ImageBaseUrl } from "../../../lib/tmdb";
 import { Loader2 } from "lucide-react";
+import GetVideos from "../../../Components/Movies/Videos/GetVideos";
 
 function formatMoney(n) {
    if (!n) return "N/A";
@@ -18,8 +19,13 @@ function formatRuntime(mins) {
 export default function Page() {
    const { id } = useParams();
    const { movie, isLoading, error } = useMovieDetails(id);
-   console.log(movie);
-   if (isLoading) return <Loader2 className="min-h-screen flex justify-center items-center animate-spin w-8 h-8 text-yellow-400" />;
+   if (isLoading) {
+      return (
+         <div className="flex items-center justify-center min-h-75">
+            <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
+         </div>
+      );
+   }
 
    if (error || !movie) return (
       <div className="flex items-center justify-center h-96 text-red-400">
@@ -141,6 +147,7 @@ export default function Page() {
                </div>
             </div>
          </div>
+         <GetVideos id={id} />
       </div>
    );
 }
