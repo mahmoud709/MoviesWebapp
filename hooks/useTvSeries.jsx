@@ -33,9 +33,21 @@ export function useTvSeriesCredits(id) {
    const { data, error, isLoading } = useSWR(id ? TvService.getCredits(id) : null, fetcher, options)
    return { credits: data, isLoading, error }
 }
+export function useTvSeriesReviews(id) {
+   const { data, error, isLoading } = useSWR(id ? TvService.getReviews(id) : null, fetcher, options)
+   return { reviews: data?.results ?? [], isLoading, error }
+}
 export function useSimilarTvSeries(id) {
    const { data, error, isLoading } = useSWR(id ? TvService.getSimilar(id) : null, fetcher, options)
    return { series: data?.results ?? [], isLoading, error }
+}
+export function useRecommendedTvSeries(id) {
+   const { data, error, isLoading } = useSWR(id ? TvService.getRecommendations(id) : null, fetcher, options)
+   return { series: data?.results ?? [], isLoading, error }
+}
+export function useTvSeriesWatchProviders(id) {
+   const { data, error, isLoading } = useSWR(id ? TvService.getWatchProviders(id) : null, fetcher, options)
+   return { providers: data?.results ?? {}, isLoading, error }
 }
 export function useTvSeriesSeasons(id) {
    const { data, error, isLoading } = useSWR(id ? TvService.getDetails(id) : null, fetcher, options)

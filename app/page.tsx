@@ -1,8 +1,6 @@
 import HeroSection from "@/Components/Hero/HeroSection";
 import Movies from './../Components/Movies/Movies';
 import PopularMovies from './../Components/Movies/Popular/PopularMovies';
-import TopRatingMovies from './../Components/Movies/TopRating/TopRating';
-
 export default function Home() {
   return (
     <>
@@ -12,7 +10,6 @@ export default function Home() {
       <div className="container mx-auto">
         <Movies />
         <PopularMovies />
-        <TopRatingMovies />
       </div>
     </>
   );

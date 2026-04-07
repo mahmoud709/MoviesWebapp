@@ -37,9 +37,21 @@ export function useMovieCredits(id) {
    const { data, error, isLoading } = useSWR(id ? MovieService.getCredits(id) : null, fetcher, options)
    return { credits: data, isLoading, error }
 }
+export function useMovieReviews(id) {
+   const { data, error, isLoading } = useSWR(id ? MovieService.getReviews(id) : null, fetcher, options)
+   return { reviews: data?.results ?? [], isLoading, error }
+}
 export function useSimilarMovies(id) {
    const { data, error, isLoading } = useSWR(id ? MovieService.getSimilar(id) : null, fetcher, options)
    return { movies: data?.results ?? [], isLoading, error }
+}
+export function useRecommendedMovies(id) {
+   const { data, error, isLoading } = useSWR(id ? MovieService.getRecommendations(id) : null, fetcher, options)
+   return { movies: data?.results ?? [], isLoading, error }
+}
+export function useMovieWatchProviders(id) {
+   const { data, error, isLoading } = useSWR(id ? MovieService.getWatchProviders(id) : null, fetcher, options)
+   return { providers: data?.results ?? {}, isLoading, error }
 }
 export function useGenres() {
    const { data, error, isLoading } = useSWR(MovieService.getGenres(), fetcher, options)
