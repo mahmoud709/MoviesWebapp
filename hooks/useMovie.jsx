@@ -41,3 +41,17 @@ export function useSimilarMovies(id) {
    const { data, error, isLoading } = useSWR(id ? MovieService.getSimilar(id) : null, fetcher, options)
    return { movies: data?.results ?? [], isLoading, error }
 }
+export function useGenres() {
+   const { data, error, isLoading } = useSWR(MovieService.getGenres(), fetcher, options)
+   return { genres: data?.genres ?? [], isLoading, error }
+}
+
+export function useMoviesByGenre(id) {
+   const { data, error, isLoading } = useSWR(
+      id ? MovieService.getMoviesByGenre(id) : null,
+      fetcher,
+      options
+   )
+
+   return { movies: data?.results ?? [], isLoading, error }
+}

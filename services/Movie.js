@@ -5,8 +5,10 @@ export const MovieService = {
    getPopular: () => tmdbUrl('/movie/popular'),
    getTopRated: () => tmdbUrl('/movie/top_rated'),
    getUpcoming: () => tmdbUrl('/movie/upcoming'),
+   getMoviesByGenre: (id) => tmdbUrl(`/discover/movie?with_genres=${id}`),
    getDetails: (id) => tmdbUrl(`/movie/${id}`),
    getCredits: (id) => tmdbUrl(`/movie/${id}/credits`),
    getVideos: (id) => tmdbUrl(`/movie/${id}/videos`),
    getSimilar: (id) => tmdbUrl(`/movie/${id}/similar`),
+   getGenres: () => tmdbUrl('/genre/movie/list')
 }
