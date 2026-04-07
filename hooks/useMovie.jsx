@@ -33,7 +33,10 @@ export function useMovieVideos(id) {
    const { data, error, isLoading } = useSWR(id ? MovieService.getVideos(id) : null, fetcher, options)
    return { videos: data?.results ?? [], isLoading, error }
 }
-
+export function useMovieCredits(id) {
+   const { data, error, isLoading } = useSWR(id ? MovieService.getCredits(id) : null, fetcher, options)
+   return { credits: data, isLoading, error }
+}
 export function useSimilarMovies(id) {
    const { data, error, isLoading } = useSWR(id ? MovieService.getSimilar(id) : null, fetcher, options)
    return { movies: data?.results ?? [], isLoading, error }
