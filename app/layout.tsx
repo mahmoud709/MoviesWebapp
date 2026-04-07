@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/Components/Header/Header";
 import { SWRConfig } from "swr";
 import { fetcher } from '@/lib/fetcher';
+import AppFooter from '@/Components/Footer/AppFooter';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
         <SWRConfig value={{ fetcher, revalidateOnFocus: false }}>
           {children}
         </SWRConfig>
+        <AppFooter />
       </body>
     </html>
   );
