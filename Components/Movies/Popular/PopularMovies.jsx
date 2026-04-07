@@ -18,7 +18,7 @@ export default function PopularMovies() {
       return <p className="text-red-500">Error: {error.message}</p>;
 
    return (
-      <>
+      <section id="popular-movies" className="scroll-mt-28">
          {/* Header */}
          <div className="flex justify-between items-center mb-6 md:mx-0 px-2 mt-6">
             <h2 className="text-2xl text-white font-bold">Popular Now</h2>
@@ -59,6 +59,6 @@ export default function PopularMovies() {
                ))}
             </Swiper>
          </div>
-      </>
+      </section>
    );
 }
