@@ -20,34 +20,34 @@ export default function Header() {
     { href: '/tv-series', name: 'Tv Series' },
   ];
 
-  const fetchSuggestion = async (query: string) => {
-    if (!query.trim()) {
-      setSuggestions([]);
-      setIsSearchOpen(false);
-      return;
-    }
-    const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-    try {
-      setIsLoading(true);
-      const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}`;
-      const res = await fetch(url, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        const filtered = data?.results?.filter(
-          (item) => item.media_type === 'movie' || item.media_type === 'tv'
-        ).slice(0, 8) || [];
-        setSuggestions(filtered);
-        setIsSearchOpen(true); // ✅ always open after fetch
-      } else {
-        setSuggestions([]);
-      }
-    } catch (err) {
-      console.log('error ', err);
-      setSuggestions([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const fetchSuggestion = async (query: string) => {
+  //   if (!query.trim()) {
+  //     setSuggestions([]);
+  //     setIsSearchOpen(false);
+  //     return;
+  //   }
+  //   const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  //   try {
+  //     setIsLoading(true);
+  //     const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}`;
+  //     const res = await fetch(url, { cache: 'no-store' });
+  //     if (res.ok) {
+  //       const data = await res.json();
+  //       const filtered = data?.results?.filter(
+  //         (item) => item.media_type === 'movie' || item.media_type === 'tv'
+  //       ).slice(0, 8) || [];
+  //       setSuggestions(filtered);
+  //       setIsSearchOpen(true); // ✅ always open after fetch
+  //     } else {
+  //       setSuggestions([]);
+  //     }
+  //   } catch (err) {
+  //     console.log('error ', err);
+  //     setSuggestions([]);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -62,68 +62,68 @@ export default function Header() {
   };
 
   // ✅ Reusable suggestion dropdown component
-  const SuggestionDropdown = () => (
-    <AnimatePresence>
-      {isSearchOpen && (
-        <motion.div
-          className="absolute top-full mt-1 w-full bg-[#18181b] border border-gray-500 rounded-lg z-50 overflow-hidden"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }} // ✅ was exit={{ opacity: 1, y: 0 }} — bug fixed
-          transition={{ duration: .2 }}
-        >
-          {suggestions.length > 0 ? (
-            suggestions.map((item) => (
-              <Link key={item?.id} href={'/'} onClick={handleClear}>
-                <div className="flex items-center gap-2 p-2 rounded-md hover:bg-[#252525]">
-                  <Image
-                    width={48}
-                    height={32}
-                    className="w-8 aspect-[2/3] object-cover rounded"
-                    src={item?.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${item?.poster_path}`
-                      : "/default_poster.jpg"}
-                    alt=""
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-sm line-clamp-2 text-white">
-                      {item?.title || item?.name || 'N/A'}
-                    </h3>
-                    <p className="text-xs text-gray-400">
-                      {(item?.first_air_date || item?.release_date)?.split('-')[0] || 'N/A'}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div className="text-gray-400 text-sm p-2 text-center">No Results Found</div>
-          )}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  // const SuggestionDropdown = () => (
+  //   <AnimatePresence>
+  //     {isSearchOpen && (
+  //       <motion.div
+  //         className="absolute top-full mt-1 w-full bg-[#18181b] border border-gray-500 rounded-lg z-50 overflow-hidden"
+  //         initial={{ opacity: 0, y: -10 }}
+  //         animate={{ opacity: 1, y: 0 }}
+  //         exit={{ opacity: 0, y: -10 }} // ✅ was exit={{ opacity: 1, y: 0 }} — bug fixed
+  //         transition={{ duration: .2 }}
+  //       >
+  //         {suggestions.length > 0 ? (
+  //           suggestions.map((item) => (
+  //             <Link key={item?.id} href={'/'} onClick={handleClear}>
+  //               <div className="flex items-center gap-2 p-2 rounded-md hover:bg-[#252525]">
+  //                 <Image
+  //                   width={48}
+  //                   height={32}
+  //                   className="w-8 aspect-[2/3] object-cover rounded"
+  //                   src={item?.poster_path
+  //                     ? `https://image.tmdb.org/t/p/w500${item?.poster_path}`
+  //                     : "/default_poster.jpg"}
+  //                   alt=""
+  //                 />
+  //                 <div className="flex-1">
+  //                   <h3 className="text-sm line-clamp-2 text-white">
+  //                     {item?.title || item?.name || 'N/A'}
+  //                   </h3>
+  //                   <p className="text-xs text-gray-400">
+  //                     {(item?.first_air_date || item?.release_date)?.split('-')[0] || 'N/A'}
+  //                   </p>
+  //                 </div>
+  //               </div>
+  //             </Link>
+  //           ))
+  //         ) : (
+  //           <div className="text-gray-400 text-sm p-2 text-center">No Results Found</div>
+  //         )}
+  //       </motion.div>
+  //     )}
+  //   </AnimatePresence>
+  // );
 
   // Reusable search icon/spinner/clear button
-  const SearchIcon = () => (
-    <button
-      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-      onClick={() => {
-        if (isSearchOpen) {
-          handleClear(); // X button clears results
-        } else {
-          fetchSuggestion(queryTerm); // ✅ fetch only on click
-        }
-      }}
-    >
-      {isLoading
-        ? <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-        : isSearchOpen && suggestions.length > 0
-          ? <X className="w-5 h-5 text-gray-500" />
-          : <Search className="w-5 h-5 text-gray-500" />
-      }
-    </button>
-  );
+  // const SearchIcon = () => (
+  //   <button
+  //     className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+  //     onClick={() => {
+  //       if (isSearchOpen) {
+  //         handleClear(); // X button clears results
+  //       } else {
+  //         fetchSuggestion(queryTerm); // ✅ fetch only on click
+  //       }
+  //     }}
+  //   >
+  //     {isLoading
+  //       ? <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+  //       : isSearchOpen && suggestions.length > 0
+  //         ? <X className="w-5 h-5 text-gray-500" />
+  //         : <Search className="w-5 h-5 text-gray-500" />
+  //     }
+  //   </button>
+  // );
 
 
   return (
@@ -160,8 +160,8 @@ export default function Header() {
             onChange={handleInputChange} // shared handler
             className="px-4 py-1.5 w-full lg:py-2 bg-white text-sm text-gray-500 focus:outline-0 border border-gray-500 rounded-xl placeholder:text-gray-500 pr-10"
           />
-          <SearchIcon />
-          <SuggestionDropdown /> {/* dropdown here for desktop */}
+          {/* <SearchIcon />
+          <SuggestionDropdown />  */}
         </div>
 
         {/* Desktop Nav */}
@@ -204,8 +204,8 @@ export default function Header() {
                   placeholder="Search for a movie, tv, show..."
                   className="px-4 py-1.5 w-full bg-white text-sm text-gray-500 focus:outline-0 border border-gray-500 rounded-xl placeholder:text-gray-500 pr-10"
                 />
-                <SearchIcon />
-                <SuggestionDropdown /> {/* dropdown here for mobile */}
+                {/* <SearchIcon />
+                <SuggestionDropdown />  */}
               </div>
 
               {/* Mobile Nav Links */}
