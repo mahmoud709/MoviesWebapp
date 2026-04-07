@@ -7,6 +7,9 @@ export const TvService = {
    getAiringToday: () => tmdbUrl('/tv/airing_today'),
    getDetails: (id) => tmdbUrl(`/tv/${id}`),
    getCredits: (id) => tmdbUrl(`/tv/${id}/credits`),
+   getReviews: (id) => tmdbUrl(`/tv/${id}/reviews`),
    getVideos: (id) => tmdbUrl(`/tv/${id}/videos`),
    getSimilar: (id) => tmdbUrl(`/tv/${id}/similar`),
+   getRecommendations: (id) => tmdbUrl(`/tv/${id}/recommendations`),
+   getWatchProviders: (id) => tmdbUrl(`/tv/${id}/watch/providers`),
 }

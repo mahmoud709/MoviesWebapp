@@ -1,36 +1,40 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
    CalendarDays,
-   Clapperboard,
+   Clock3,
    ExternalLink,
+   Film,
    Loader2,
    PlayCircle,
    Quote,
-   Radio,
    Sparkles,
    Star,
    Tv,
    Users,
 } from "lucide-react";
-
 import {
-   useRecommendedTvSeries,
-   useSimilarTvSeries,
-   useTvSeriesCredits,
-   useTvSeriesDetails,
-   useTvSeriesReviews,
-   useTvSeriesVideos,
-   useTvSeriesWatchProviders,
-} from "../../../hooks/useTvSeries";
+   useMovieCredits,
+   useMovieDetails,
+   useMovieReviews,
+   useMovieVideos,
+   useMovieWatchProviders,
+   useRecommendedMovies,
+   useSimilarMovies,
+} from "../../../hooks/useMovie";
+import { ImageBaseUrl } from "../../../lib/tmdb";
+import Link from "next/link";
 
-const imageBase = "https://image.tmdb.org/t/p/";
+function formatMoney(n) {
+   if (!n) return "N/A";
+   return `$${(n / 1_000_000).toFixed(1)}M`;
+}
 
-function formatRating(value) {
-   return typeof value === "number" ? value.toFixed(1) : "N/A";
+function formatRuntime(mins) {
+   if (!mins) return "Unknown";
+   return `${Math.floor(mins / 60)}h ${mins % 60}m`;
 }
 
 function formatDate(value) {
@@ -42,55 +46,45 @@ function formatDate(value) {
    });
 }
 
-function runtimeLabel(minutes) {
-   if (!minutes) return "Unknown";
-   const hours = Math.floor(minutes / 60);
-   const mins = minutes % 60;
-   return hours ? `${hours}h ${mins}m` : `${mins}m`;
-}
-
 function getPreferredProviders(providerMap) {
    if (!providerMap) return null;
    return providerMap.US || providerMap.EG || Object.values(providerMap)[0] || null;
 }
 
-export default function Page() {
+export default function MovieDetailsClient() {
    const { id } = useParams();
-   const { series, isLoading, error } = useTvSeriesDetails(id);
-   const { credits } = useTvSeriesCredits(id);
-   const { videos } = useTvSeriesVideos(id);
-   const { reviews } = useTvSeriesReviews(id);
-   const { series: similarSeries } = useSimilarTvSeries(id);
-   const { series: recommendedSeries } = useRecommendedTvSeries(id);
-   const { providers } = useTvSeriesWatchProviders(id);
+   const { movie, isLoading, error } = useMovieDetails(id);
+   const { credits } = useMovieCredits(id);
+   const { videos } = useMovieVideos(id);
+   const { reviews } = useMovieReviews(id);
+   const { movies: similarMovies } = useSimilarMovies(id);
+   const { movies: recommendedMovies } = useRecommendedMovies(id);
+   const { providers } = useMovieWatchProviders(id);
 
    const topCast = credits?.cast?.slice(0, 6) ?? [];
    const featuredVideo = videos?.find((video) => video.site === "YouTube") ?? null;
-   const networks = series?.networks ?? [];
-   const seasons = series?.seasons?.filter((season) => season.season_number > 0) ?? [];
-   const createdBy = series?.created_by?.map((person) => person.name).join(", ");
-   const reviewList = reviews.slice(0, 3);
    const watchProviders = getPreferredProviders(providers);
+   const reviewList = reviews.slice(0, 3);
 
    if (isLoading) {
       return (
          <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
             <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-neutral-200 backdrop-blur">
-               <Loader2 className="h-5 w-5 animate-spin text-amber-400" />
-               Loading series details...
+               <Loader2 className="h-5 w-5 animate-spin text-yellow-400" />
+               Loading movie details...
             </div>
          </div>
       );
    }
 
-   if (error || !series) {
+   if (error || !movie) {
       return (
          <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4 text-white">
             <div className="w-full max-w-2xl rounded-3xl border border-red-500/20 bg-red-500/10 p-8 text-center shadow-2xl shadow-red-950/30">
                <p className="mb-3 text-sm uppercase tracking-[0.35em] text-red-300">
-                  Broadcast Error
+                  Playback Failed
                </p>
-               <h1 className="mb-3 text-3xl font-bold">We couldn&apos;t load this TV series.</h1>
+               <h1 className="mb-3 text-3xl font-bold">We couldn&apos;t load this movie.</h1>
                <p className="text-neutral-300">
                   Check the API response and try again.
                </p>
@@ -100,28 +94,26 @@ export default function Page() {
    }
 
    return (
-      <div className="min-h-screen mt-8 overflow-hidden bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.14),transparent_28%),linear-gradient(180deg,#111827_0%,#09090b_48%,#020617_100%)] text-white">
+      <div className="min-h-screen mt-8 overflow-hidden bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.15),transparent_28%),linear-gradient(180deg,#111827_0%,#09090b_48%,#020617_100%)] text-white">
          <section className="relative isolate overflow-hidden border-b border-white/10">
-            {series.backdrop_path ? (
+            {movie.backdrop_path ? (
                <>
                   <div
                      className="absolute inset-0 -z-20 bg-cover bg-center opacity-35"
-                     style={{
-                        backgroundImage: `url(${imageBase}original${series.backdrop_path})`,
-                     }}
+                     style={{ backgroundImage: `url(${ImageBaseUrl}${movie.backdrop_path})` }}
                   />
-                  <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/45" />
-                  <div className="absolute inset-0 -z-10 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                  <div className="absolute inset-0 -z-10 bg-linear-to-r from-slate-950 via-slate-950/85 to-slate-950/45" />
+                  <div className="absolute inset-0 -z-10 bg-linear-to-t from-slate-950 via-slate-950/30 to-transparent" />
                </>
             ) : null}
 
             <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:px-6 lg:grid-cols-[300px_1fr] lg:items-end lg:py-20">
                <div className="mx-auto w-full max-w-[300px] lg:mx-0">
                   <div className="rounded-[2rem] border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md">
-                     {series.poster_path ? (
+                     {movie.poster_path ? (
                         <Image
-                           src={`${imageBase}w780${series.poster_path}`}
-                           alt={series.name}
+                           src={`${ImageBaseUrl}${movie.poster_path}`}
+                           alt={movie.title}
                            width={780}
                            height={1170}
                            className="aspect-[2/3] w-full rounded-[1.5rem] object-cover"
@@ -137,36 +129,33 @@ export default function Page() {
 
                <div>
                   <div className="mb-5 flex flex-wrap items-center gap-3 text-sm">
-                     <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1.5 text-cyan-200">
-                        <Tv className="h-4 w-4" />
-                        TV Series
+                     <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-amber-200">
+                        <Film className="h-4 w-4" />
+                        Movie
                      </span>
                      <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-amber-200">
                         <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                        {formatRating(series.vote_average)} score
+                        {movie.vote_average?.toFixed(1)} score
                      </span>
                      <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-neutral-200">
                         <Users className="h-4 w-4 text-emerald-300" />
-                        {series.vote_count?.toLocaleString() || "0"} votes
+                        {movie.vote_count?.toLocaleString() || "0"} votes
                      </span>
                   </div>
 
                   <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-                     {series.name}
+                     {movie.title}
                   </h1>
-
-                  {series.tagline ? (
-                     <p className="mt-3 text-lg italic text-cyan-100/80">
-                        {series.tagline}
-                     </p>
+                  {movie.tagline ? (
+                     <p className="mt-3 text-lg italic text-amber-100/80">{movie.tagline}</p>
                   ) : null}
 
                   <p className="mt-6 max-w-3xl text-sm leading-7 text-neutral-300 sm:text-base">
-                     {series.overview || "No overview available for this series yet."}
+                     {movie.overview || "No overview available for this movie yet."}
                   </p>
 
                   <div className="mt-7 flex flex-wrap gap-2">
-                     {series.genres?.map((genre) => (
+                     {movie.genres?.map((genre) => (
                         <span
                            key={genre.id}
                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-neutral-200"
@@ -179,24 +168,24 @@ export default function Page() {
                   <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                      {[
                         {
-                           label: "First Air Date",
-                           value: formatDate(series.first_air_date),
+                           label: "Release Date",
+                           value: formatDate(movie.release_date),
                            icon: CalendarDays,
                         },
                         {
-                           label: "Last Air Date",
-                           value: formatDate(series.last_air_date),
-                           icon: Radio,
+                           label: "Runtime",
+                           value: formatRuntime(movie.runtime),
+                           icon: Clock3,
                         },
                         {
-                           label: "Episodes",
-                           value: series.number_of_episodes || "Unknown",
-                           icon: Clapperboard,
-                        },
-                        {
-                           label: "Episode Runtime",
-                           value: runtimeLabel(series.episode_run_time?.[0]),
+                           label: "Budget",
+                           value: formatMoney(movie.budget),
                            icon: Sparkles,
+                        },
+                        {
+                           label: "Revenue",
+                           value: formatMoney(movie.revenue),
+                           icon: Tv,
                         },
                      ].map((item) => {
                         const Icon = item.icon;
@@ -205,7 +194,7 @@ export default function Page() {
                               key={item.label}
                               className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 shadow-lg shadow-black/20 backdrop-blur"
                            >
-                              <Icon className="mb-3 h-5 w-5 text-cyan-300" />
+                              <Icon className="mb-3 h-5 w-5 text-amber-300" />
                               <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
                                  {item.label}
                               </p>
@@ -223,25 +212,23 @@ export default function Page() {
          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:px-6 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-8">
                <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20">
-                  <div className="mb-5 flex items-center justify-between gap-4">
-                     <div>
-                        <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">
-                           Series Info
-                        </p>
-                        <h2 className="mt-2 text-2xl font-bold text-white">
-                           Production snapshot
-                        </h2>
-                     </div>
+                  <div className="mb-5">
+                     <p className="text-sm uppercase tracking-[0.35em] text-amber-300">
+                        Details
+                     </p>
+                     <h2 className="mt-2 text-2xl font-bold text-white">
+                        Production snapshot
+                     </h2>
                   </div>
 
                   <div className="grid gap-6 md:grid-cols-2">
                      <div className="space-y-3 text-sm">
                         {[
-                           ["Status", series.status],
-                           ["Type", series.type],
-                           ["Original Name", series.original_name],
-                           ["Original Language", String(series.original_language || "N/A").toUpperCase()],
-                           ["Created By", createdBy || "Unknown"],
+                           ["Status", movie.status],
+                           ["Release", formatDate(movie.release_date)],
+                           ["Language", movie.original_language?.toUpperCase()],
+                           ["Country", movie.production_countries?.map((c) => c.name).join(", ") || "Unknown"],
+                           ["IMDb", movie.imdb_id || "Unavailable"],
                         ].map(([label, value]) => (
                            <div
                               key={label}
@@ -249,7 +236,7 @@ export default function Page() {
                            >
                               <span className="text-neutral-500">{label}</span>
                               <span className="max-w-[60%] text-right text-neutral-200">
-                                 {value || "Unknown"}
+                                 {value}
                               </span>
                            </div>
                         ))}
@@ -257,21 +244,21 @@ export default function Page() {
 
                      <div>
                         <p className="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500">
-                           Networks
+                           Production Companies
                         </p>
                         <div className="flex flex-wrap gap-2">
-                           {networks.length ? (
-                              networks.map((network) => (
+                           {movie.production_companies?.length ? (
+                              movie.production_companies.map((company) => (
                                  <span
-                                    key={network.id}
+                                    key={company.id}
                                     className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-200"
                                  >
-                                    {network.name}
+                                    {company.name}
                                  </span>
                               ))
                            ) : (
                               <span className="text-sm text-neutral-400">
-                                 No network information available.
+                                 No production company information available.
                               </span>
                            )}
                         </div>
@@ -281,131 +268,76 @@ export default function Page() {
 
                <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20">
                   <div className="mb-6">
-                     <p className="text-sm uppercase tracking-[0.35em] text-amber-300">
-                        Seasons
-                     </p>
-                     <h2 className="mt-2 text-2xl font-bold text-white">
-                        Episode journey
-                     </h2>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                     {seasons.length ? (
-                        seasons.map((season) => (
-                           <article
-                              key={season.id}
-                              className="rounded-2xl border border-white/10 bg-black/20 p-4"
-                           >
-                              <div className="mb-3 flex items-center justify-between gap-3">
-                                 <h3 className="text-lg font-semibold text-white">
-                                    {season.name}
-                                 </h3>
-                                 <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs text-cyan-200">
-                                    {season.episode_count} episodes
-                                 </span>
-                              </div>
-                              <p className="mb-3 text-sm text-neutral-400">
-                                 Air date: {formatDate(season.air_date)}
-                              </p>
-                              <p className="text-sm leading-6 text-neutral-300">
-                                 {season.overview || "No season overview available yet."}
-                              </p>
-                           </article>
-                        ))
-                     ) : (
-                        <p className="text-sm text-neutral-400">
-                           No season information available.
-                        </p>
-                     )}
-                  </div>
-               </section>
-
-               <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20">
-                  <div className="mb-6">
                      <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">
                         Recommendations
                      </p>
                      <h2 className="mt-2 text-2xl font-bold text-white">
-                        Recommended next
+                        You may also like
                      </h2>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                     {recommendedSeries?.slice(0, 6).length ? (
-                        recommendedSeries.slice(0, 6).map((item) => (
-                           <Link
-                              key={item.id}
-                              href={`/tv-series/${item.id}`}
-                              className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 transition hover:-translate-y-1 hover:border-cyan-400/30"
-                           >
-                              {item.backdrop_path || item.poster_path ? (
+                  {recommendedMovies.length ? (
+                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {recommendedMovies.slice(0, 6).map((item) => (
+                           <Link key={item?.id} href={`/movie/${item.id}`}>
+                              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                  <Image
-                                    src={`${imageBase}w780${item.backdrop_path || item.poster_path}`}
-                                    alt={item.name}
-                                    width={780}
-                                    height={440}
-                                    className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
+                                    src={`${ImageBaseUrl}${item.poster_path}`}
+                                    alt={item.title}
+                                    width={400}
+                                    height={600}
+                                    className="mb-3 aspect-[2/3] w-full rounded-xl object-cover"
                                  />
-                              ) : (
-                                 <div className="flex h-40 items-center justify-center bg-slate-900 text-slate-500">
-                                    No image
-                                 </div>
-                              )}
-                              <div className="p-4">
-                                 <h3 className="font-semibold text-white">{item.name}</h3>
-                                 <p className="mt-2 text-sm text-neutral-400">
-                                    {formatDate(item.first_air_date)}
+                                 <p className="font-semibold text-white">{item.title}</p>
+                                 <p className="mt-1 text-sm text-neutral-400">
+                                    {item.release_date?.slice(0, 4) || "Unknown"}
                                  </p>
                               </div>
                            </Link>
-                        ))
-                     ) : (
-                        <p className="text-sm text-neutral-400">
-                           No recommendations available yet.
-                        </p>
-                     )}
-                  </div>
+                        ))}
+                     </div>
+                  ) : (
+                     <p className="text-sm text-neutral-400">
+                        No recommendations available yet.
+                     </p>
+                  )}
                </section>
 
                <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20">
                   <div className="mb-6">
                      <p className="text-sm uppercase tracking-[0.35em] text-emerald-300">
-                        Similar Picks
+                        Similar Content
                      </p>
                      <h2 className="mt-2 text-2xl font-bold text-white">
                         More like this
                      </h2>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                     {similarSeries?.slice(0, 6).map((item) => (
-                        <Link
-                           key={item.id}
-                           href={`/tv-series/${item.id}`}
-                           className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 transition hover:-translate-y-1 hover:border-cyan-400/30"
-                        >
-                           {item.backdrop_path || item.poster_path ? (
-                              <Image
-                                 src={`${imageBase}w780${item.backdrop_path || item.poster_path}`}
-                                 alt={item.name}
-                                 width={780}
-                                 height={440}
-                                 className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
-                              />
-                           ) : (
-                              <div className="flex h-40 items-center justify-center bg-slate-900 text-slate-500">
-                                 No image
+                  {similarMovies.length ? (
+                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {similarMovies.slice(0, 6).map((item) => (
+                           <Link key={item?.id} href={`/movie/${item.id}`}>
+                              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                 <Image
+                                    src={`${ImageBaseUrl}${item.poster_path}`}
+                                    alt={item.title}
+                                    width={400}
+                                    height={600}
+                                    className="mb-3 aspect-[2/3] w-full rounded-xl object-cover"
+                                 />
+                                 <p className="font-semibold text-white">{item.title}</p>
+                                 <p className="mt-1 text-sm text-neutral-400">
+                                    {item.release_date?.slice(0, 4) || "Unknown"}
+                                 </p>
                               </div>
-                           )}
-                           <div className="p-4">
-                              <h3 className="font-semibold text-white">{item.name}</h3>
-                              <p className="mt-2 text-sm text-neutral-400">
-                                 {formatDate(item.first_air_date)}
-                              </p>
-                           </div>
-                        </Link>
-                     ))}
-                  </div>
+                           </Link>
+                        ))}
+                     </div>
+                  ) : (
+                     <p className="text-sm text-neutral-400">
+                        No similar movies available yet.
+                     </p>
+                  )}
                </section>
             </div>
 
@@ -433,7 +365,7 @@ export default function Page() {
                                  {featuredVideo.name}
                               </p>
                               <p className="mt-1 text-sm text-neutral-400">
-                                 Open the official trailer on YouTube
+                                 Open the trailer on YouTube
                               </p>
                            </div>
                            <PlayCircle className="h-10 w-10 text-pink-300 transition group-hover:scale-110" />
@@ -455,7 +387,7 @@ export default function Page() {
                      </div>
                   ) : (
                      <p className="text-sm text-neutral-400">
-                        No trailer videos available for this series yet.
+                        No trailer videos available for this movie yet.
                      </p>
                   )}
                </section>
@@ -514,14 +446,14 @@ export default function Page() {
                      </div>
                   ) : (
                      <p className="text-sm text-neutral-400">
-                        No streaming provider information available for this series.
+                        No streaming provider information available for this movie.
                      </p>
                   )}
                </section>
 
                <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20">
                   <div className="mb-6">
-                     <p className="text-sm uppercase tracking-[0.35em] text-violet-300">
+                     <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">
                         Reviews
                      </p>
                      <h2 className="mt-2 text-2xl font-bold text-white">
@@ -537,7 +469,7 @@ export default function Page() {
                               className="rounded-2xl border border-white/10 bg-black/20 p-4"
                            >
                               <div className="mb-3 flex items-center gap-3">
-                                 <Quote className="h-5 w-5 text-cyan-300" />
+                                 <Quote className="h-5 w-5 text-amber-300" />
                                  <div>
                                     <p className="font-semibold text-white">{review.author}</p>
                                     <p className="text-xs text-neutral-500">
@@ -554,7 +486,7 @@ export default function Page() {
                         ))
                      ) : (
                         <p className="text-sm text-neutral-400">
-                           No reviews available for this series yet.
+                           No reviews available for this movie yet.
                         </p>
                      )}
                   </div>
@@ -562,7 +494,7 @@ export default function Page() {
 
                <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20">
                   <div className="mb-6">
-                     <p className="text-sm uppercase tracking-[0.35em] text-violet-300">
+                     <p className="text-sm uppercase tracking-[0.35em] text-emerald-300">
                         Cast
                      </p>
                      <h2 className="mt-2 text-2xl font-bold text-white">
@@ -579,7 +511,7 @@ export default function Page() {
                            >
                               {person.profile_path ? (
                                  <Image
-                                    src={`${imageBase}w185${person.profile_path}`}
+                                    src={`${ImageBaseUrl}${person.profile_path}`}
                                     alt={person.name}
                                     width={72}
                                     height={72}

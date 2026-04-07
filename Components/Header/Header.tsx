@@ -13,7 +13,7 @@ export default function Header() {
     { href: "/", name: "Home", match: "/" },
     { href: "/#trending-movies", name: "Trending", match: "/t" },
     { href: "/#popular-movies", name: "Popular", match: "/h" },
-    { href: "/#top-rated-movies", name: "Top Rated", match: "/h" },
+    { href: "/top-rated", name: "Top Rated", match: "/op-rated" },
     { href: "/up-coming-movies", name: "Upcoming", match: "/up-coming-movies" },
     { href: "/tv-series", name: "Series", match: "/tv-series" },
   ];
