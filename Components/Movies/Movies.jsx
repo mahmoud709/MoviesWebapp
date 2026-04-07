@@ -20,7 +20,7 @@ export default function Movies() {
       return <p className="text-red-500">Error: {error.message}</p>;
 
    return (
-      <>
+      <section id="trending-movies" className="scroll-mt-28">
          {/* Header */}
          <div className="flex justify-between items-center mb-6 md:mx-0 px-2">
             <h2 className="text-2xl text-white font-bold">Trending Now</h2>
@@ -61,6 +61,6 @@ export default function Movies() {
                ))}
             </Swiper>
          </div>
-      </>
+      </section>
    );
 }

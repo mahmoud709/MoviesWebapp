@@ -18,7 +18,7 @@ export default function TopRatingMovies() {
       return <p className="text-red-500">Error: {error.message}</p>;
 
    return (
-      <>
+      <section id="top-rated-movies" className="scroll-mt-28">
          {/* Header */}
          <div className="flex justify-between items-center mb-6 md:mx-0 px-2 mt-6">
             <h2 className="text-2xl text-white font-bold">Top Rating</h2>
@@ -59,6 +59,6 @@ export default function TopRatingMovies() {
                ))}
             </Swiper>
          </div>
-      </>
+      </section>
    );
 }

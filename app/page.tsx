@@ -2,7 +2,6 @@ import HeroSection from "@/Components/Hero/HeroSection";
 import Movies from './../Components/Movies/Movies';
 import PopularMovies from './../Components/Movies/Popular/PopularMovies';
 import TopRatingMovies from './../Components/Movies/TopRating/TopRating';
-import UpcommingMovies from './../Components/Movies/Upcoming/UpcomingMovies';
 
 export default function Home() {
   return (
@@ -14,7 +13,6 @@ export default function Home() {
         <Movies />
         <PopularMovies />
         <TopRatingMovies />
-        <UpcommingMovies />
       </div>
     </>
   );
