@@ -2,17 +2,15 @@
 
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useRef } from "react";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { useUpcomingMovies } from "@/hooks/useMovie";
+import MovieCard from './../MovieCard';
 
-import useTrendingMovies from "../../hooks/useMovie";
-import MovieCard from "./MovieCard";
-
-export default function Movies() {
-   const { movies, isLaoding, error } = useTrendingMovies();
+export default function UpcommingMovies() {
+   const { movies, isLaoding, error } = useUpcomingMovies();
    const swiperRef = useRef(null);
-   
+
    if (isLaoding)
       return <Loader2 className="animate-spin w-8 h-8 text-yellow-400" />;
 
@@ -22,8 +20,8 @@ export default function Movies() {
    return (
       <>
          {/* Header */}
-         <div className="flex justify-between items-center mb-6 md:mx-0 px-2">
-            <h2 className="text-2xl text-white font-bold">Trending Now</h2>
+         <div className="flex justify-between items-center mb-6 md:mx-0 px-2 mt-6">
+            <h2 className="text-2xl text-white font-bold">Upcoming Movies</h2>
 
             <div className="flex gap-2">
                <button
@@ -34,7 +32,7 @@ export default function Movies() {
                </button>
 
                <button
-               onClick={() => swiperRef.current?.slideNext()}
+                  onClick={() => swiperRef.current?.slideNext()}
                   className="p-1.5 bg-gray-200 cursor-pointer text-yellow-600 rounded-full hover:bg-yellow-400 hover:text-white"
                >
                   <ChevronRight size={20} />
@@ -43,7 +41,7 @@ export default function Movies() {
          </div>
 
          {/* Swiper */}
-         <div className="px-4 sm:px-0">
+         <div className="px-4 sm:px-0 mt-4">
             <Swiper
                onSwiper={(swiper) => (swiperRef.current = swiper)}
                spaceBetween={16}
