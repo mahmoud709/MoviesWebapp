@@ -7,7 +7,7 @@ const options = { revalidateOnFocus: false, dedupingInterval: 60_000 };
 
 export default function useTrendingMovies() {
    const { data, isLaoding, error } = useSWR(MovieService.getTrendingMovies(), fetcher, options);
-   return { movies: data.results ?? [], isLaoding, error };
+   return { movies: data?.results ?? [], isLaoding, error };
 }
 
 export function usePopularMovies() {
