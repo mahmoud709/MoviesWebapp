@@ -8,6 +8,7 @@ import "swiper/css";
 
 import useTrendingMovies from "../../hooks/useMovie";
 import MovieCard from "./MovieCard";
+import Generes from './../Genres/Generes';
 
 export default function Movies() {
    const { movies, isLaoding, error } = useTrendingMovies();
@@ -61,6 +62,7 @@ export default function Movies() {
                ))}
             </Swiper>
          </div>
+         <Generes />
       </section>
    );
 }
