@@ -11,7 +11,6 @@ import MovieCard from "./MovieCard";
 
 export default function Movies() {
    const { movies, isLaoding, error } = useTrendingMovies();
-
    const swiperRef = useRef(null);
    
    if (isLaoding)
