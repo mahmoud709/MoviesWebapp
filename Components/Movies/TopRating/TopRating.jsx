@@ -10,7 +10,6 @@ import MovieCard from './../MovieCard';
 export default function TopRatingMovies() {
    const { movies, isLaoding, error } = useTopRatedMovies();
    const swiperRef = useRef(null);
-
    if (isLaoding)
       return <Loader2 className="animate-spin w-8 h-8 text-yellow-400" />;
 
