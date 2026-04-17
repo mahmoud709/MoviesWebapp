@@ -2,13 +2,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Film, Menu, Search, Tv, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { tmdbUrl, ImageBaseUrl } from "../../lib/tmdb";
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [queryTerm, setQueryTerm] = useState("");
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const navLinks = [
     { href: "/", name: "Home", match: "/" },
     { href: "/#trending-movies", name: "Trending", match: "/t" },
@@ -22,13 +27,109 @@ export default function Header() {
 
   const handleClear = () => {
     setQueryTerm("");
+    setResults([]);
   };
 
   const isLinkActive = (match: string) => {
     return pathname === match;
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedTerm(queryTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [queryTerm]);
 
+  useEffect(() => {
+    if (!debouncedTerm) {
+      setResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const fetchResults = async () => {
+      setIsSearching(true);
+      try {
+        const url = tmdbUrl(`/search/multi?query=${encodeURIComponent(debouncedTerm)}&include_adult=false`);
+        const res = await fetch(url);
+        const data = await res.json();
+        const validResults = data.results?.filter((item: any) => item.media_type === "movie" || item.media_type === "tv").slice(0, 8) || [];
+        setResults(validResults);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    
+    fetchResults();
+  }, [debouncedTerm]);
+
+  const handleResultClick = (item: any) => {
+    setQueryTerm("");
+    setResults([]);
+    setIsMenuOpen(false);
+    if (item.media_type === "movie") {
+      router.push(`/movie/${item.id}`);
+    } else if (item.media_type === "tv") {
+      router.push(`/tv-series/${item.id}`);
+    }
+  };
+
+  const renderSearchResults = () => {
+    if (!queryTerm) return null;
+    
+    return (
+      <AnimatePresence>
+        {queryTerm && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute left-0 right-0 top-[110%] z-50 max-h-[70vh] w-full overflow-y-auto rounded-2xl border border-white/10 bg-[rgba(10,10,12,0.95)] p-2 shadow-2xl backdrop-blur-xl"
+          >
+            {isSearching ? (
+              <div className="p-4 text-center text-sm text-white/50">Searching...</div>
+            ) : results.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {results.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleResultClick(item)}
+                    className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/10"
+                  >
+                    {item.poster_path ? (
+                      <img
+                        src={`${ImageBaseUrl}${item.poster_path}`}
+                        alt={item.title || item.name}
+                        className="h-14 w-10 flex-shrink-0 object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-10 flex-shrink-0 items-center justify-center rounded-md bg-white/10 text-white/50">
+                        <Film className="h-4 w-4" />
+                      </div>
+                    )}
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="truncate text-sm font-medium text-white">
+                        {item.title || item.name}
+                      </span>
+                      <span className="text-xs text-white/50 capitalize flex items-center gap-1">
+                        {item.media_type === "movie" ? <Film className="h-3 w-3" /> : <Tv className="h-3 w-3" />}
+                        {item.media_type} • {item.release_date ? item.release_date.split('-')[0] : (item.first_air_date ? item.first_air_date.split('-')[0] : 'N/A')}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 text-center text-sm text-white/50">No results found</div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
 
   return (
     <motion.header
@@ -79,6 +180,7 @@ export default function Header() {
               <X className="h-4 w-4" />
             </button>
           ) : null}
+          {renderSearchResults()}
         </div>
 
         {/* Desktop Nav */}
@@ -133,6 +235,7 @@ export default function Header() {
                     <X className="h-4 w-4" />
                   </button>
                 ) : null}
+                {renderSearchResults()}
               </div>
 
               {/* Mobile Nav Links */}
